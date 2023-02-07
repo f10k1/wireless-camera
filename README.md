@@ -1,1 +1,1 @@
-# wiraless-camera
+# wireless-camera
