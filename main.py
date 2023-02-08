@@ -1,12 +1,14 @@
 import rp2
 from config import *
 import uasyncio
-from methods import get_input
+from methods import *
 import time
 import json
+from wifi_api import Wifi
 
 rp2.country('PL')
 
+wifi = Wifi()
 async def main():
     try:
         raise Exception('')
@@ -21,21 +23,28 @@ async def main():
         else:
             raise Exception("No configuration")
     except:
-        lcd.putstr("Config not detected")
-        time.sleep(2)
-        lcd.clear()
+        print_on_lcd("Config not detected")
 
-        lcd.putstr("Enter new password")
-        time.sleep(2)
-        lcd.clear()
+        print_on_lcd("Enter new password")
 
         config = {}
 
         #TODO Secure password by hashing it
         config['password'] = await get_input()
-        lcd.putstr(json.dumps(config['password']))
 
-        #TODO Input for wifi credentials
+        print_on_lcd("Pick your wifi")
+
+        while(not wifi.is_connected()):
+            ssid = await get_select(wifi.get_ssid_list())
+
+            print_on_lcd("Enter password")
+
+            password = await get_input()
+
+            wifi.connect(ssid, password)
+
+        config['ssid'] = ssid
+        config['wifi-password'] = password
 
         file = open('config.txt', 'w+')
         file.write(json.dumps(config))
