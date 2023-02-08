@@ -17,6 +17,13 @@ async def handle_button(handle_up_function, handle_down_function, handle_next_fu
         if (button_confirm.value()):
             return callback()
 
+def print_on_lcd(msg):
+    lcd.clear()
+    lcd.move_to(0, 0)
+    lcd.putstr(msg)
+    time.sleep(2)
+    lcd.clear()
+
 async def get_input():
     char_list = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!" + '"' + "#$%&'()*+,-./:;<=>?@[\]^_`{|}~"
     current_char = 0
@@ -53,3 +60,24 @@ async def get_input():
     print_current_input()
 
     return uasyncio.run(handle_button(change_char_up, change_char_down, handle_next, handle_confirm))
+
+async def get_select(options):
+    current_option = 0
+
+    def change_char_up():
+        nonlocal current_option
+        current_option += 1 if len(options) > current_option else -1
+        print_current_input()
+    def change_char_down():
+        nonlocal current_option
+        current_option = current_option - 1 if current_option > 0 else len(options) - 1
+        print_current_input()
+    def handle_confirm():
+        lcd.clear()
+        return options[current_option]
+    def print_current_input():
+        print_on_lcd(options[current_option])
+
+    print_current_input()
+
+    return uasyncio.run(handle_button(change_char_up, change_char_down, lambda *args: None, handle_confirm))
