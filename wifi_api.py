@@ -1,5 +1,8 @@
 import network
-from methods import *
+import time
+from lcd_controller import LcdController
+
+lcd = LcdController()
 
 class Wifi:
     def __init__(self):
@@ -15,37 +18,34 @@ class Wifi:
 
         self.wlan.connect(self.ssid, password)
 
-        while (self.get_connection_message()):
-            time.sleep(1)
-            status = self.get_connection_message()
+        while (self.get_connection_message() == -1): continue
 
-        return status
 
     def get_ssid_list(self):
         return [val[0].decode('utf-8') for val in self.wlan.scan() if val[0].decode('utf-8') != ""]  # check if wlan is public
 
-    async def get_connection_message(self):
+    def get_connection_message(self):
         status = self.wlan.status()
         if (status == network.STAT_IDLE):
-            print_on_lcd('No connection')
+            lcd.print_on_lcd('No connection')
             return 0
         elif (status == network.STAT_CONNECTING):
-            print_on_lcd('Connecting...')
+            lcd.print_on_lcd('Connecting...')
             return -1
         elif (status == network.STAT_WRONG_PASSWORD):
-            print_on_lcd('Wrong password')
+            lcd.print_on_lcd('Wrong password')
             return 0
         elif (status == network.STAT_NO_AP_FOUND):
-            print_on_lcd('No responce from network')
+            lcd.print_on_lcd('No responce from network')
             return 0
         elif (status == network.STAT_CONNECT_FAIL):
-            print_on_lcd('Connection failed')
+            lcd.print_on_lcd('Connection failed')
             return 0
         elif (status == network.STAT_GOT_IP):
-            print_on_lcd('Connected')
+            lcd.print_on_lcd('Connected')
             return 1
         else:
-            print_on_lcd("Connection failed")
+            lcd.print_on_lcd("Connection failed")
             return 0
 
 
